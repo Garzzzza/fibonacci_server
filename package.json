@@ -1,5 +1,5 @@
 {
-  "name": "fibonnaci-project-server",
+  "name": "fibonnaci_server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
