@@ -2,7 +2,11 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://fibonacci-client.vercel.app",
+  })
+);
 
 const Datastore = require("nedb");
 const db = new Datastore({ filename: "./storage.db" });
