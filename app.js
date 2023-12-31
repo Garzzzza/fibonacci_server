@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 
+app.use(cors());
+
 app.use((req, res, next) => {
   res.on("finish", () => {
     console.log("Outgoing Headers:", res.getHeaders());
