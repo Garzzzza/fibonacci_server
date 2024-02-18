@@ -1,11 +1,8 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const corsOptions = {
-  origin: "https://fibonacci-client.vercel.app",
-};
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use((req, res, next) => {
   res.on("finish", () => {
