@@ -29,7 +29,7 @@ function wait(time) {
 }
 
 app.get("/fibonacci/:number", async (req, res) => {
-  await wait(600);
+  // await wait(600);
   const number = +req.params.number;
   if (number === 42) {
     return res.status(400).send("42 is the meaning of life");
@@ -52,7 +52,7 @@ app.get("/fibonacci/:number", async (req, res) => {
 });
 
 app.get("/getFibonacciResults", async (req, res) => {
-  await wait(600);
+  // await wait(600);
   db.find({}, (err, docs) => {
     if (err) {
       res.status(500).send(err);
