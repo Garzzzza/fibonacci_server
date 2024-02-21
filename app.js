@@ -1,19 +1,55 @@
+require("dotenv").config(); // At the top of your file
 const express = require("express");
 const app = express();
+const mongoose = require("mongoose");
 const cors = require("cors");
 
 app.use(cors());
+app.use(express.json());
 
-app.use((req, res, next) => {
-  res.on("finish", () => {
-    console.log("Outgoing Headers:", res.getHeaders());
-  });
-  next();
+const MONGODB_URI = process.env.MONGODB_URI;
+const connectDB = () => {
+  mongoose
+    .connect(MONGODB_URI, {})
+    .then(() => console.log("Connected to MongoDB"))
+    .catch((err) => console.error("Failed to connect to MongoDB", err));
+};
+
+connectDB();
+
+const outcomeSchema = new mongoose.Schema({
+  number: { type: Number },
+  result: { type: Number },
+  createdDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const Datastore = require("nedb");
-const db = new Datastore({ filename: "./storage.db" });
-db.loadDatabase();
+const Outcome = mongoose.model("Outcome", outcomeSchema);
+
+const getOutcomeModel = async (number) => {
+  const outcome = new Outcome({
+    number: number,
+    result: fibonacci(number),
+    createdDate: Date.now(),
+  });
+  try {
+    await outcome.save();
+    return outcome;
+  } catch (err) {
+    console.error("Error saving result:", err);
+  }
+};
+
+const getAllOutcomesModel = async () => {
+  try {
+    const allOutcomes = await Outcome.find();
+    return allOutcomes;
+  } catch (err) {
+    console.error("Error fetching result:", err);
+  }
+};
 
 function fibonacci(n, memo = {}) {
   if (n in memo) return memo[n];
@@ -22,14 +58,7 @@ function fibonacci(n, memo = {}) {
   return (memo[n] = fibonacci(n - 1, memo) + fibonacci(n - 2, memo));
 }
 
-function wait(time) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, time);
-  });
-}
-
 app.get("/fibonacci/:number", async (req, res) => {
-  // await wait(600);
   const number = +req.params.number;
   if (number === 42) {
     return res.status(400).send("42 is the meaning of life");
@@ -40,30 +69,25 @@ app.get("/fibonacci/:number", async (req, res) => {
   if (number < 1) {
     return res.status(400).send("number can't be smaller than 1");
   }
-  const result = fibonacci(number);
-  const obj = { number, result, createdDate: Date.now() };
-  db.insert(obj, (err) => {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      res.send(obj);
-    }
-  });
+  try {
+    const outcome = await getOutcomeModel(number);
+    res.status(200).send(outcome);
+  } catch (err) {
+    console.error("Error adding user:", err);
+    res.status(500).send("Internal server error");
+  }
 });
 
-app.get("/getFibonacciResults", async (req, res) => {
-  // await wait(600);
-  db.find({}, (err, docs) => {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      res.send({ results: docs });
-    }
-  });
+app.get("/getFibonacciOutcomes", async (req, res) => {
+  try {
+    const allOutcomes = await getAllOutcomesModel();
+    res.status(200).send(allOutcomes);
+  } catch (err) {
+    console.error("Error adding user:", err);
+    res.status(500).send("Internal server error");
+  }
 });
 
-const PORT = 5050;
 app.listen(5050, () => {
-  console.log(`App listening on port ${PORT}`);
-  console.log("Press Ctrl+C to quit.");
+  console.log("App listening on port 5050");
 });

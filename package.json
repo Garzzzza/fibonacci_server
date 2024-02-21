@@ -11,7 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "cors": "*",
+    "dotenv": "*",
     "express": "*",
+    "mongoose": "*",
     "nedb": "*",
     "nodemon": "*"
   }
